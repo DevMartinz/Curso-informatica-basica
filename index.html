@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width,initial-scale=1" />
+		<title>Ranking Semanal</title>
+		<style>
+			* {
+				box-sizing: border-box;
+				margin: 0;
+				padding: 0;
+			}
+			html,
+			body {
+				height: 100%;
+				width: 100%;
+			}
+			body {
+				min-height: 100vh;
+				display: flex;
+				flex-direction: column;
+				font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+				transition: background 0.25s ease, color 0.25s ease;
+				overflow-x: hidden;
+			}
+
+			/* cores */
+			:root {
+				--accent: #4f46e5;
+				--content-max: 1100px;
+				--text: #222;
+				--bg: #f3f4f6; /* cinza claro no light */
+				--podium-light: #d8f9df; /* verde mais claro e opaco */
+				--podium-dark: #2d4a2f; /* verde fraquinho no modo dark */
+			}
+
+			body {
+				background: var(--bg);
+				color: var(--text);
+			}
+
+			body.dark {
+				--bg: #0f1113;
+				--text: #e9eef8;
+				background: var(--bg);
+			}
+
+			/* header full bleed */
+			header {
+				position: sticky;
+				top: 0;
+				left: 0;
+				right: 0;
+				z-index: 1200;
+				width: 100%;
+				background: var(--accent);
+				color: #fff;
+			}
+			header .container {
+				max-width: var(--content-max);
+				margin: 0 auto;
+				padding: 12px 20px;
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				gap: 12px;
+			}
+			header h1 {
+				font-size: 1.05rem;
+				display: flex;
+				align-items: center;
+				gap: 8px;
+			}
+
+			/* botão tema */
+			.theme-btn {
+				background: rgba(255, 255, 255, 0.12);
+				border: 1px solid rgba(255, 255, 255, 0.08);
+				color: #fff;
+				padding: 6px 10px;
+				border-radius: 8px;
+				cursor: pointer;
+				font-size: 1.25rem;
+				line-height: 1;
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+			}
+
+			/* main */
+			main {
+				flex: 1;
+				padding: 32px 16px;
+				display: flex;
+				justify-content: center;
+			}
+			.container {
+				max-width: var(--content-max);
+				width: 100%;
+			}
+
+			/* tabela */
+			.ranking-table {
+				width: 100%;
+				border-collapse: collapse;
+				border-radius: 10px;
+				overflow: hidden;
+				background: rgba(255, 255, 255, 0.96);
+			}
+			.ranking-table thead th {
+				background: var(--accent);
+				color: #fff;
+				padding: 12px;
+				font-weight: 600;
+				text-align: center;
+			}
+			.ranking-table td {
+				padding: 12px;
+				text-align: center;
+				border-top: 1px solid rgba(0, 0, 0, 0.04);
+			}
+			.ranking-table tbody tr:nth-child(even) td {
+				background: rgba(0, 0, 0, 0.03);
+			}
+
+			body.dark .ranking-table {
+				background: rgba(8, 8, 8, 0.65);
+			}
+			body.dark .ranking-table tbody tr:nth-child(even) td {
+				background: rgba(255, 255, 255, 0.02);
+			}
+
+			/* responsivo */
+			@media (max-width: 720px) {
+				.ranking-table,
+				.ranking-table thead,
+				.ranking-table tbody,
+				.ranking-table th,
+				.ranking-table td,
+				.ranking-table tr {
+					display: block;
+				}
+				.ranking-table thead {
+					display: none;
+				}
+				.ranking-table tr {
+					background: rgba(255, 255, 255, 0.96);
+					margin-bottom: 10px;
+					border-radius: 10px;
+					padding: 10px;
+				}
+				.ranking-table td {
+					display: flex;
+					justify-content: space-between;
+					padding: 0.6rem 0;
+					border: none;
+				}
+				.ranking-table td::before {
+					content: attr(data-label);
+					font-weight: 700;
+					margin-right: 8px;
+					opacity: 0.85;
+				}
+				body.dark .ranking-table tr {
+					background: rgba(8, 8, 8, 0.65);
+				}
+			}
+
+			/* Destaque Podium */
+			tbody tr:nth-child(1),
+			tbody tr:nth-child(2),
+			tbody tr:nth-child(3) {
+				background: var(--podium-light) !important;
+				font-weight: bold;
+			}
+			body.dark tbody tr:nth-child(1),
+			body.dark tbody tr:nth-child(2),
+			body.dark tbody tr:nth-child(3) {
+				background: var(--podium-dark) !important;
+			}
+
+			/* footer */
+			footer {
+				width: 100%;
+				background: rgba(0, 0, 0, 0.04);
+				margin-top: 18px;
+			}
+			footer .container {
+				max-width: var(--content-max);
+				margin: 0 auto;
+				padding: 12px 20px;
+				text-align: center;
+				color: #444;
+				font-size: 0.95rem;
+			}
+			body.dark footer {
+				background: rgba(255, 255, 255, 0.02);
+				color: #cbd6ee;
+			}
+		</style>
+	</head>
+	<body>
+		<header>
+			<div class="container">
+				<h1>🏆 <span style="font-weight: 700">Ranking Semanal</span></h1>
+				<button
+					id="themeBtn"
+					class="theme-btn"
+					aria-pressed="false"
+					aria-label="Alternar tema"
+				>
+					🌙
+				</button>
+			</div>
+		</header>
+
+		<main>
+			<div class="container">
+				<table class="ranking-table" role="table" aria-label="Ranking completo">
+					<thead>
+						<tr>
+							<th>Posição</th>
+							<th>Nome</th>
+							<th>Acertos</th>
+							<th>Tempo</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td data-label="Posição">1°</td>
+							<td data-label="Nome">🥇 jose gabriel</td>
+							<td data-label="Acertos">7/7</td>
+							<td data-label="Tempo">1:42</td>
+						</tr>
+						<tr>
+							<td>2°</td>
+							<td>🥈 Emilly</td>
+							<td>7/7</td>
+							<td>1:44</td>
+						</tr>
+						<tr>
+							<td>3°</td>
+							<td>🥉 kemilly kristina</td>
+							<td>7/7</td>
+							<td>1:51</td>
+						</tr>
+						<tr>
+							<td>4°</td>
+							<td>Arthur</td>
+							<td>7/7</td>
+							<td>1:53</td>
+						</tr>
+						<tr>
+							<td>5°</td>
+							<td>pedro</td>
+							<td>7/7</td>
+							<td>2:00</td>
+						</tr>
+						<tr>
+							<td>6°</td>
+							<td>daviiiiiii</td>
+							<td>7/7</td>
+							<td>2:09</td>
+						</tr>
+						<tr>
+							<td>7°</td>
+							<td>luis cardoso</td>
+							<td>7/7</td>
+							<td>2:29</td>
+						</tr>
+						<tr>
+							<td>8°</td>
+							<td>emanuel</td>
+							<td>7/7</td>
+							<td>2:41</td>
+						</tr>
+						<tr>
+							<td>9°</td>
+							<td>lorrany s.</td>
+							<td>7/7</td>
+							<td>2:42</td>
+						</tr>
+						<tr>
+							<td>10°</td>
+							<td>joão caboco</td>
+							<td>7/7</td>
+							<td>2:56</td>
+						</tr>
+						<tr>
+							<td>11°</td>
+							<td>Anahy.g</td>
+							<td>7/7</td>
+							<td>2:58</td>
+						</tr>
+						<tr>
+							<td>12°</td>
+							<td>Maria Andrielly</td>
+							<td>7/7</td>
+							<td>3:22</td>
+						</tr>
+						<tr>
+							<td>13°</td>
+							<td>amilli</td>
+							<td>7/7</td>
+							<td>3:28</td>
+						</tr>
+						<tr>
+							<td>14°</td>
+							<td>Ana Giselly</td>
+							<td>7/7</td>
+							<td>3:38</td>
+						</tr>
+						<tr>
+							<td>15°</td>
+							<td>Rute Gomes Lima</td>
+							<td>6/7</td>
+							<td>1:47</td>
+						</tr>
+						<tr>
+							<td>16°</td>
+							<td>Maria vitória de aquino</td>
+							<td>6/7</td>
+							<td>2:11</td>
+						</tr>
+						<tr>
+							<td>17°</td>
+							<td>pedro henrique</td>
+							<td>6/7</td>
+							<td>2:13</td>
+						</tr>
+						<tr>
+							<td>18°</td>
+							<td>cleitin</td>
+							<td>6/7</td>
+							<td>2:13</td>
+						</tr>
+						<tr>
+							<td>19°</td>
+							<td>Carlos Eduardo</td>
+							<td>6/7</td>
+							<td>2:20</td>
+						</tr>
+						<tr>
+							<td>20°</td>
+							<td>Ester</td>
+							<td>6/7</td>
+							<td>2:28</td>
+						</tr>
+						<tr>
+							<td>21°</td>
+							<td>Ana Karoline</td>
+							<td>6/7</td>
+							<td>2:37</td>
+						</tr>
+						<tr>
+							<td>22°</td>
+							<td>José Cauã Nere da Silva</td>
+							<td>6/7</td>
+							<td>2:39</td>
+						</tr>
+						<tr>
+							<td>23°</td>
+							<td>J.danilo</td>
+							<td>6/7</td>
+							<td>2:48</td>
+						</tr>
+						<tr>
+							<td>24°</td>
+							<td>maria clara silvs</td>
+							<td>6/7</td>
+							<td>2:50</td>
+						</tr>
+						<tr>
+							<td>25°</td>
+							<td>Livia</td>
+							<td>6/7</td>
+							<td>2:52</td>
+						</tr>
+						<tr>
+							<td>26°</td>
+							<td>Liedja Vitória</td>
+							<td>6/7</td>
+							<td>3:00</td>
+						</tr>
+						<tr>
+							<td>27°</td>
+							<td>Maria Cecilia</td>
+							<td>6/7</td>
+							<td>3:05</td>
+						</tr>
+						<tr>
+							<td>28°</td>
+							<td>Davi Fernandes De Menezes</td>
+							<td>6/7</td>
+							<td>3:12</td>
+						</tr>
+						<tr>
+							<td>29°</td>
+							<td>José igor oliveira da silva</td>
+							<td>6/7</td>
+							<td>3:26</td>
+						</tr>
+						<tr>
+							<td>30°</td>
+							<td>alexandra</td>
+							<td>6/7</td>
+							<td>3:35</td>
+						</tr>
+						<tr>
+							<td>31°</td>
+							<td>Walisson De Oliveira</td>
+							<td>6/7</td>
+							<td>4:03</td>
+						</tr>
+						<tr>
+							<td>32°</td>
+							<td>rian ff h 4x</td>
+							<td>5/7</td>
+							<td>2:13</td>
+						</tr>
+						<tr>
+							<td>33°</td>
+							<td>bomynovo22</td>
+							<td>5/7</td>
+							<td>2:36</td>
+						</tr>
+						<tr>
+							<td>34°</td>
+							<td>Ailly</td>
+							<td>5/7</td>
+							<td>2:45</td>
+						</tr>
+						<tr>
+							<td>35°</td>
+							<td>Emilly</td>
+							<td>5/7</td>
+							<td>2:51</td>
+						</tr>
+						<tr>
+							<td>36°</td>
+							<td>jv</td>
+							<td>5/7</td>
+							<td>3:05</td>
+						</tr>
+						<!-- ... demais posições ... -->
+					</tbody>
+				</table>
+			</div>
+		</main>
+
+		<footer>
+			<div class="container">Feito por Bruno Martins © 2025</div>
+		</footer>
+
+		<script>
+			const themeBtn = document.getElementById("themeBtn");
+			const body = document.body;
+			const saved = localStorage.getItem("ranking-theme");
+			if (saved === "dark") {
+				body.classList.add("dark");
+			} else if (
+				!saved &&
+				window.matchMedia("(prefers-color-scheme: dark)").matches
+			) {
+				body.classList.add("dark");
+			}
+			updateIcon();
+			themeBtn.addEventListener("click", () => {
+				body.classList.toggle("dark");
+				localStorage.setItem(
+					"ranking-theme",
+					body.classList.contains("dark") ? "dark" : "light"
+				);
+				updateIcon();
+			});
+			function updateIcon() {
+				themeBtn.textContent = body.classList.contains("dark") ? "☀️" : "🌙";
+				themeBtn.setAttribute(
+					"aria-pressed",
+					body.classList.contains("dark") ? "true" : "false"
+				);
+			}
+		</script>
+	</body>
+</html>
