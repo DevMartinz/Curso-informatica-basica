@@ -133,16 +133,43 @@
 			/* responsivo - scroll horizontal em mobile */
 			@media (max-width: 720px) {
 				.container {
-					overflow-x: auto; /* permite scroll horizontal */
-					-webkit-overflow-scrolling: touch; /* suaviza scroll no iOS */
+					overflow-x: hidden; /* remove scroll horizontal */
 				}
 				.ranking-table {
-					min-width: 600px; /* largura mínima pra caber as colunas */
+					width: 100%;
+					table-layout: fixed; /* força as colunas a se ajustarem */
+					font-size: 0.85rem; /* diminui um pouco a fonte */
 				}
-				.ranking-table td,
-				.ranking-table th {
-					padding: 8px; /* reduz padding */
-					font-size: 0.9rem;
+				/* Largura das colunas */
+				.ranking-table th:nth-child(1),
+				.ranking-table td:nth-child(1),
+				.ranking-table th:nth-child(3),
+				.ranking-table td:nth-child(3),
+				.ranking-table th:nth-child(4),
+				.ranking-table td:nth-child(4) {
+					width: 60px; /* colunas Posição, Acertos e Tempo bem estreitas */
+					padding: 4px 6px;
+					text-align: center;
+					white-space: nowrap;
+				}
+
+				/* Coluna Nome */
+				.ranking-table th:nth-child(2),
+				.ranking-table td:nth-child(2) {
+					width: auto; /* ocupa o restante do espaço */
+					text-align: left;
+					padding: 4px 6px;
+					white-space: nowrap;
+					overflow: hidden;
+				}
+
+				/* Limitar a coluna de nomes a duas palavras */
+				.ranking-table td:nth-child(2) {
+					display: -webkit-box;
+					-webkit-line-clamp: 1; /* mostra só uma linha */
+					-webkit-box-orient: horizontal;
+					overflow: hidden;
+					text-overflow: ellipsis;
 				}
 			}
 
