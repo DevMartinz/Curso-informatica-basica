@@ -21,7 +21,6 @@
 				flex-direction: column;
 				font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 				transition: background 0.25s ease, color 0.25s ease;
-				overflow-x: hidden;
 			}
 
 			/* cores */
@@ -97,6 +96,7 @@
 			.container {
 				max-width: var(--content-max);
 				width: 100%;
+				overflow-x: hidden;
 			}
 
 			/* tabela */
@@ -130,39 +130,19 @@
 				background: rgba(255, 255, 255, 0.02);
 			}
 
-			/* responsivo */
+			/* responsivo - scroll horizontal em mobile */
 			@media (max-width: 720px) {
-				.ranking-table,
-				.ranking-table thead,
-				.ranking-table tbody,
-				.ranking-table th,
+				.container {
+					overflow-x: auto; /* permite scroll horizontal */
+					-webkit-overflow-scrolling: touch; /* suaviza scroll no iOS */
+				}
+				.ranking-table {
+					min-width: 600px; /* largura mínima pra caber as colunas */
+				}
 				.ranking-table td,
-				.ranking-table tr {
-					display: block;
-				}
-				.ranking-table thead {
-					display: none;
-				}
-				.ranking-table tr {
-					background: rgba(255, 255, 255, 0.96);
-					margin-bottom: 10px;
-					border-radius: 10px;
-					padding: 10px;
-				}
-				.ranking-table td {
-					display: flex;
-					justify-content: space-between;
-					padding: 0.6rem 0;
-					border: none;
-				}
-				.ranking-table td::before {
-					content: attr(data-label);
-					font-weight: 700;
-					margin-right: 8px;
-					opacity: 0.85;
-				}
-				body.dark .ranking-table tr {
-					background: rgba(8, 8, 8, 0.65);
+				.ranking-table th {
+					padding: 8px; /* reduz padding */
+					font-size: 0.9rem;
 				}
 			}
 
@@ -227,10 +207,10 @@
 					</thead>
 					<tbody>
 						<tr>
-							<td data-label="Posição">1°</td>
-							<td data-label="Nome">🥇 jose gabriel</td>
-							<td data-label="Acertos">7/7</td>
-							<td data-label="Tempo">1:42</td>
+							<td>1°</td>
+							<td>🥇 jose gabriel</td>
+							<td>7/7</td>
+							<td>1:42</td>
 						</tr>
 						<tr>
 							<td>2°</td>
